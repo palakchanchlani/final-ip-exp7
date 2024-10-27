@@ -1,0 +1,181 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>NodeJs and Express - Product Management</title>
+    <style>
+        body {
+            font-family: 'Arial', sans-serif;
+            background-color: #f0f4f8;
+            color: #333;
+            margin: 0;
+            padding: 0;
+        }
+
+        h1 {
+            text-align: center;
+            padding: 20px 0;
+            background-color: #010912;
+            color: #fff;
+            margin: 0;
+        }
+
+        .search-container {
+            max-width: 800px;
+            margin: 20px auto;
+            display: flex;
+            gap: 10px;
+            justify-content: center;
+        }
+
+        .search-container input {
+            padding: 10px;
+            font-size: 16px;
+            border: 2px solid #ddd;
+            border-radius: 4px;
+            flex: 1;
+        }
+
+        .search-container button {
+            padding: 10px 20px;
+            font-size: 16px;
+            background-color: #0f0f0f;
+            color: #fff;
+            border: none;
+            border-radius: 4px;
+            cursor: pointer;
+        }
+
+        .search-container button:hover {
+            background-color: #7499c0;
+        }
+
+        .product-container {
+            max-width: 1000px;
+            margin: 20px auto;
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(250px, 1fr));
+            gap: 20px;
+            padding: 0 20px;
+        }
+
+        .product-card {
+            background: #fff;
+            padding: 20px;
+            border-radius: 8px;
+            box-shadow: 0 4px 8px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s, box-shadow 0.2s;
+        }
+
+        .product-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 16px rgba(0, 0, 0, 0.2);
+        }
+
+        .product-name {
+            font-size: 20px;
+            font-weight: bold;
+            margin-bottom: 10px;
+            color: #0b0b0b;
+        }
+
+        .product-price {
+            font-size: 18px;
+            margin-bottom: 10px;
+            color: #28a745;
+        }
+
+        .product-category {
+            font-size: 16px;
+            color: #6c757d;
+        }
+
+        .no-products {
+            text-align: center;
+            font-size: 18px;
+            color: #666;
+            margin-top: 20px;
+        }
+
+        @media (max-width: 600px) {
+            .search-container {
+                flex-direction: column;
+                gap: 10px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <h1>NodeJs and Express - Product Management</h1>
+    <div class="search-container">
+        <input type="text" id="search-name" placeholder="Search by name">
+        <input type="text" id="search-category" placeholder="Search by category">
+        <button onclick="searchProducts()">Search</button>
+    </div>
+    <div class="product-container" id="product-list"></div>
+
+    <script>
+        async function fetchProducts(url = '/products') {
+            try {
+                const response = await fetch(url);
+                const data = await response.json();
+
+                const productList = document.getElementById('product-list');
+                productList.innerHTML = '';
+
+                if (data.length === 0) {
+                    productList.innerHTML = '<p class="no-products">No products found</p>';
+                    return;
+                }
+
+                data.forEach(product => {
+                    const productCard = document.createElement('div');
+                    productCard.className = 'product-card';
+
+                    const productName = document.createElement('div');
+                    productName.className = 'product-name';
+                    productName.textContent = product.name;
+
+                    const productPrice = document.createElement('div');
+                    productPrice.className = 'product-price';
+                    productPrice.textContent = `$${product.price}`;
+
+                    const productCategory = document.createElement('div');
+                    productCategory.className = 'product-category';
+                    productCategory.textContent = product.category;
+
+                    productCard.appendChild(productName);
+                    productCard.appendChild(productPrice);
+                    productCard.appendChild(productCategory);
+                    productList.appendChild(productCard);
+                });
+            } catch (error) {
+                console.error('Error fetching products:', error);
+            }
+        }
+
+        function searchProducts() {
+            const name = document.getElementById('search-name').value;
+            const category = document.getElementById('search-category').value;
+            let url = '/search?';
+
+            if (name) {
+                url += `name=${encodeURIComponent(name)}&`;
+            }
+            if (category) {
+                url += `category=${encodeURIComponent(category)}`;
+            }
+
+            // Remove any trailing "&" or "?" at the end of the URL
+            url = url.endsWith('&') ? url.slice(0, -1) : url;
+            url = url.endsWith('?') ? url.slice(0, -1) : url;
+
+            fetchProducts(url);
+        }
+
+        // Fetch and display all products initially
+        fetchProducts();
+    </script>
+</body>
+</html>
